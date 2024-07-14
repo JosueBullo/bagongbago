@@ -43,6 +43,12 @@ class CategoryController extends Controller
         return response()->json($category, 201);
     }
 
+    public function show($id)
+    {
+        $category = Category::findOrFail($id);
+        return response()->json($category);
+    }
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -63,14 +69,6 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
         $category->delete();
-
         return response()->json(null, 204);
-    }
-
-    public function show($id)
-    {
-        $category = Category::findOrFail($id);
-
-        return response()->json($category);
     }
 }

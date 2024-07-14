@@ -11,22 +11,28 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $columns = ['id', 'name', 'description', 'categories', 'price']; // Define searchable columns (remove 'categories' if not needed)
+            $columns = ['id', 'name', 'description', 'categories', 'price', 'image'];
             $query = Product::select($columns);
 
-            // Handle search input from DataTables
             if ($request->has('search') && !empty($request->input('search')['value'])) {
                 $searchValue = $request->input('search')['value'];
-                $query->where(function($q) use ($searchValue, $columns) {
+                $query->where(function ($q) use ($searchValue, $columns) {
                     foreach ($columns as $column) {
                         $q->orWhere($column, 'like', '%' . $searchValue . '%');
                     }
                 });
             }
 
-            // Return JSON response with pagination
             return datatables()->of($query)
-                ->rawColumns(['id', 'name', 'description', 'categories', 'price']) // If you have HTML in any column
+                ->addColumn('image', function ($product) {
+                    return $product->image ? asset('storage/product_images/' . $product->image) : null;
+                })
+                ->addColumn('action', function ($row) {
+                    $editBtn = '<button type="button" class="btn btn-primary btn-sm edit-btn" data-id="' . $row->id . '">Edit</button>';
+                    $deleteBtn = '<button type="button" class="btn btn-danger btn-sm delete-btn" data-id="' . $row->id . '">Delete</button>';
+                    return $editBtn . ' ' . $deleteBtn;
+                })
+                ->rawColumns(['image', 'action'])
                 ->make(true);
         }
 
@@ -35,32 +41,28 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        // Validate incoming request
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',  // Adjust image validation as needed
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle file upload
+        $imageName = null;
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/product_images', $imageName);  // Store image in storage/app/public/product_images directory
-        } else {
-            return response()->json(['message' => 'Image file is required.'], 422);
+            $image->storeAs('public/product_images', $imageName);
         }
 
-        // Create new product
-        $product = new Product();
-        $product->name = $request->name;
-        $product->description = $request->description;
-        $product->price = $request->price;
-        $product->image = $imageName;  // Store image filename in database
-        $product->save();
+        Product::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'image' => $imageName,
+        ]);
 
-        return response()->json(['message' => 'Product added successfully'], 200);
+        return response()->json(['success' => 'Product created successfully']);
     }
 
     public function show($id)
@@ -82,15 +84,17 @@ class ProductController extends Controller
             'name' => 'required|max:255',
             'description' => 'required',
             'price' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
             if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+                Storage::disk('public')->delete('product_images/' . $product->image);
             }
-            $path = $request->file('image')->store('images', 'public');
-            $validatedData['image'] = $path;
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public/product_images', $imageName);
+            $validatedData['image'] = $imageName;
         }
 
         $product->update($validatedData);
@@ -103,7 +107,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+            Storage::disk('public')->delete('product_images/' . $product->image);
         }
 
         $product->delete();

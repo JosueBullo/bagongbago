@@ -7,43 +7,56 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background-color: #343a40;
+            background-color: #f7f7f7;
             font-family: Arial, sans-serif;
-            color: #ffffff;
+            color: #333;
         }
         .container {
             max-width: 400px;
             margin: 100px auto;
-            background: #454d55;
-            padding: 30px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
         }
         .container h1 {
             text-align: center;
-            margin-bottom: 30px;
-            color: #17a2b8;
+            margin-bottom: 20px;
+            color: #d50000;
         }
         .form-control {
             margin-bottom: 20px;
-            background-color: #545d65;
-            color: #ffffff;
-            border-color: #343a40;
+            background-color: #f1f1f1;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-control:focus {
+            border-color: #d50000;
+            background-color: #ffffff;
         }
         .btn-primary {
             width: 100%;
             padding: 10px;
-            background-color: #17a2b8;
+            background-color: #d50000;
             border: none;
+            border-radius: 5px;
         }
         .btn-primary:hover {
-            background-color: #138496;
+            background-color: #c70000;
+        }
+        .text-center a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .text-center a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Login to Gadget Shop</h1>
+        <h1>Login to GadgetHub</h1>
         <form id="loginForm">
             @csrf
             <div class="form-group">
@@ -53,6 +66,12 @@
                 <input type="password" name="password" class="form-control" placeholder="Password" required>
             </div>
             <button type="submit" class="btn btn-primary">Login</button>
+            <div class="text-center mt-3">
+                <a href="/forgot-password">Forgot Password?</a>
+            </div>
+            <div class="text-center mt-2">
+                <a href="/register">Create an Account</a>
+            </div>
         </form>
     </div>
 
@@ -73,7 +92,13 @@
                 },
                 error: function(xhr) {
                     console.log(xhr.responseJSON);
-                    alert('Login failed. Check your credentials.');
+                    if (xhr.status === 401) {
+                        alert('Login failed. Check your credentials.');
+                    } else if (xhr.status === 403) {
+                        alert('This account is deactivated.');
+                    } else {
+                        alert('An error occurred. Please try again.');
+                    }
                 }
             });
         });

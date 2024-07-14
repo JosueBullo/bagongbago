@@ -7,46 +7,51 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            background-color: #343a40; /* Dark background color */
+            background-color: #f7f7f7; /* Light background color */
             font-family: Arial, sans-serif;
-            color: #ffffff; /* Light text color */
+            color: #333; /* Dark text color */
         }
         .container {
             max-width: 400px;
             margin: 100px auto;
-            background: #454d55; /* Darker container background color */
-            padding: 30px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Darker box shadow */
+            background: #ffffff; /* White container background color */
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1); /* Light box shadow */
         }
         .container h1 {
             text-align: center;
-            margin-bottom: 30px;
-            color: #17a2b8; /* Accent color */
+            margin-bottom: 20px;
+            color: #d50000; /* Lazada accent color */
         }
         .form-control {
             margin-bottom: 20px;
-            background-color: #545d65; /* Darker input background color */
-            color: #ffffff; /* Light text color */
-            border-color: #343a40; /* Dark border color */
+            background-color: #f1f1f1; /* Light input background color */
+            color: #333; /* Dark text color */
+            border: 1px solid #ccc; /* Light border color */
+            border-radius: 5px;
+        }
+        .form-control:focus {
+            border-color: #d50000; /* Lazada focus border color */
+            background-color: #ffffff;
         }
         .btn-primary {
             width: 100%;
             padding: 10px;
-            background-color: #17a2b8; /* Primary button color */
+            background-color: #d50000; /* Primary button color */
             border: none;
+            border-radius: 5px;
         }
         .btn-primary:hover {
-            background-color: #138496; /* Darker hover color */
+            background-color: #c70000; /* Darker hover color */
         }
         .login-link {
             display: block;
             text-align: center;
             margin-top: 20px;
-            color: #17a2b8;
+            color: #007bff; /* Link color */
         }
         .login-link:hover {
-            color: #138496;
             text-decoration: underline;
         }
     </style>

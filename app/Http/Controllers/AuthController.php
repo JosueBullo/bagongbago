@@ -21,6 +21,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => 'customer',
+            'status' => 'active',
         ]);
 
         return response()->json(['user' => $user], 201);
@@ -44,16 +45,22 @@ class AuthController extends Controller
         }
     
         $user = $request->user();
+    
+        if ($user->status !== 'active') {
+            return response()->json(['message' => 'This account is deactivated'], 403);
+        }
+    
         $token = $user->createToken('authToken')->plainTextToken;
     
         $response = [
             'user' => $user,
             'token' => $token,
-            'redirect_url' => $user->role === 'admin' ? url('/admin') : url('/customer/dashboard')
+            'redirect_url' => $user->role === 'customer' ? url('/customer') : url('/customer/dashboard')
         ];
     
         return response()->json($response);
     }
+    
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();

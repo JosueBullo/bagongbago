@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProductdataController;
+use App\Http\Controllers\CustomerPanelController;
+use App\Http\Controllers\CustomerProductController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,18 +18,17 @@ use App\Http\Controllers\ProductdataController;
 */
 
 Route::get('/', function () {
-    return view('login');
+    return view('auth.login');
 });
+
 //auth
 Route::middleware('auth')->group(function () {
 });
-
 Route::get('/register', function () {
-    return view('register'); // Renders resources/views/register.blade.php
+    return view('auth.register'); // Renders resources/views/register.blade.php
 });
-
 Route::get('/login', function () {
-    return view('login'); // Renders resources/views/login.blade.php
+    return view('auth.login'); // Renders resources/views/login.blade.php
 });
 
 //productmanagement
@@ -40,11 +41,12 @@ Route::get('/admin', function () {
     return view('adminindex');
 });
 
+//users
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
 Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
 
 //category management
@@ -52,10 +54,14 @@ Route::get('/category', function() {
     return view('categories.categoryindex');
 });
 
+
+
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/customer', [CustomerPanelController::class, 'index'])->name('customerpanel');
 
-
+Route::get('/cusprod', [CustomerProductController::class, 'index'])->name('cusproducts');
 
 
 

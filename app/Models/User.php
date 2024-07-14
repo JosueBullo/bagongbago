@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'role', // No need to assign a default value here, handle it in the controller or migration
         'image',
+        'status',
     ];
 
     /**

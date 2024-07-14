@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
@@ -14,14 +15,7 @@ class UserController extends Controller
             $users = User::all();
             return response()->json(['data' => $users]);
         }
-        
-        $users = User::all();
-        return view('users.index', compact('users'));
-    }
-
-    public function create()
-    {
-        return view('users.create');
+        return view('users.index');
     }
 
     public function store(Request $request)
@@ -31,22 +25,21 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'image' => 'nullable|image|max:2048',
+            'status' => 'required|in:active,deactivated', // Validate the status
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()->all()], 422);
         }
 
-        $validated = $validator->validated();
+        $user = new User($validator->validated());
+        $user->password = bcrypt($request->password);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('images', 'public');
+            $user->image = $request->file('image')->store('images', 'public');
         }
 
-        $validated['password'] = bcrypt($validated['password']);
-
-        User::create($validated);
-
+        $user->save();
         return response()->json(['message' => 'User created successfully.']);
     }
 
@@ -60,9 +53,10 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8',
             'image' => 'nullable|image|max:2048',
+            'status' => 'required|in:active,deactivated', // Validate the status
         ]);
 
         if ($validator->fails()) {
@@ -86,7 +80,6 @@ class UserController extends Controller
         }
 
         $user->update($validated);
-
         return response()->json(['message' => 'User updated successfully.']);
     }
 
@@ -97,7 +90,6 @@ class UserController extends Controller
             Storage::disk('public')->delete($user->image);
         }
         $user->delete();
-
         return response()->json(['message' => 'User deleted successfully.']);
     }
 }
